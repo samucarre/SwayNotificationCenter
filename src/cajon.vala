@@ -9,6 +9,8 @@ namespace SwayNotificationCenter {
         private double escala = 1.0;
         private int64 t0 = 0;
         private int64 t_prev = 0;
+        private int64 hueco_max = 0;
+        private uint n_ticks = 0;
         private uint tick = 0;
         private const double DURACION = 0.7;
 
@@ -62,6 +64,8 @@ namespace SwayNotificationCenter {
             escala = 0.12;
             t0 = 0;
             t_prev = 0;
+            hueco_max = 0;
+            n_ticks = 0;
             if (tick != 0) {
                 remove_tick_callback (tick);
             }
@@ -77,6 +81,10 @@ namespace SwayNotificationCenter {
                 if (t - t_prev > 80000) {
                     t0 += (t - t_prev) - 16000;
                 }
+                if (t - t_prev > hueco_max) {
+                    hueco_max = t - t_prev;
+                }
+                n_ticks++;
                 t_prev = t;
                 double p = (double) (t - t0) / 1e6 / DURACION;
                 escala = escala_suave (p);
@@ -84,6 +92,8 @@ namespace SwayNotificationCenter {
                 if (p >= 1.0) {
                     tick = 0;
                     escala = 1.0;
+                    // una línea por apertura en el journal (journalctl --user -u swaync): cadencia real del cajón
+                    stderr.printf ("cajon: %u fotogramas, hueco máximo %lld ms\n", n_ticks, hueco_max / 1000);
                     return GLib.Source.REMOVE;
                 }
                 return GLib.Source.CONTINUE;
