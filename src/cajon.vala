@@ -13,6 +13,7 @@ namespace SwayNotificationCenter {
         private uint n_ticks = 0;
         private uint tick = 0;
         private const double DURACION = 0.7;
+        private const double PICO = 1.0;   // 1.0 = sin sobrepasar (3-nov-2026; igual que perfilado.py y waybar)
 
         public Cajon (Gtk.Widget hijo) {
             this.hijo = hijo;
@@ -135,9 +136,9 @@ namespace SwayNotificationCenter {
                 return 1.0;
             }
             if (p < 0.6) {
-                return 0.12 + (1.05 - 0.12) * bezier (p / 0.6, 0.33, 0.9, 0.35, 1);
+                return 0.12 + (PICO - 0.12) * bezier (p / 0.6, 0.33, 0.9, 0.35, 1);
             }
-            return 1.05 + (1.0 - 1.05) * bezier ((p - 0.6) / 0.4, 0.33, 0.9, 0.35, 1);
+            return PICO + (1.0 - PICO) * bezier ((p - 0.6) / 0.4, 0.33, 0.9, 0.35, 1);
         }
     }
 }
