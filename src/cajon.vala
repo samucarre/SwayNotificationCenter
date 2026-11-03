@@ -8,6 +8,7 @@ namespace SwayNotificationCenter {
         private Gtk.Widget ? hijo = null;
         private double escala = 1.0;
         private int64 t0 = 0;
+        private int64 t_prev = 0;
         private uint tick = 0;
         private const double DURACION = 0.7;
 
@@ -60,6 +61,7 @@ namespace SwayNotificationCenter {
             }
             escala = 0.12;
             t0 = 0;
+            t_prev = 0;
             if (tick != 0) {
                 remove_tick_callback (tick);
             }
@@ -67,7 +69,15 @@ namespace SwayNotificationCenter {
                 int64 t = clock.get_frame_time ();
                 if (t0 == 0) {
                     t0 = t;
+                    t_prev = t;
                 }
+                // Un parón del bucle (la creación de las ventanas en blanco de las otras pantallas al mapearse,
+                // >80 ms) no se descuenta de la animación: se desplaza el origen y el cajón sigue donde estaba,
+                // en vez de saltar al final sin que se vea ningún fotograma.
+                if (t - t_prev > 80000) {
+                    t0 += (t - t_prev) - 16000;
+                }
+                t_prev = t;
                 double p = (double) (t - t0) / 1e6 / DURACION;
                 escala = escala_suave (p);
                 queue_draw ();
