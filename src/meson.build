@@ -54,6 +54,7 @@ widget_sources = [
 
 app_sources = [
   'main.vala',
+  'cajon.vala',
   'animatedList/animatedList.vala',
   'animatedList/animatedListItem.vala',
   'orderedHashTable/orderedHashTable.vala',

@@ -18,11 +18,21 @@ namespace SwayNotificationCenter {
 
         private string ?monitor_name = null;
 
+        /** WayBian: la caja del centro va dentro de un Cajon para abrirse con el vaivén de los paneles de la barra. */
+        private Cajon cajon;
+
         public ControlCenter () {
             Object (css_name: "blankwindow");
 
             widgets = new List<unowned Widgets.BaseWidget> ();
             widgets.append (notifications_widget);
+
+            // WayBian (3-nov-2026): el ScrolledWindow «control-center» de la plantilla pasa a ser hijo de un Cajon,
+            // que lo dibuja escalado desde arriba mientras se abre (ver cajon.vala)
+            Gtk.Widget panel = window;
+            this.set_child (null);
+            cajon = new Cajon (panel);
+            this.set_child (cajon);
 
             if (app.use_layer_shell) {
                 if (!GtkLayerShell.is_supported ()) {
@@ -382,6 +392,9 @@ namespace SwayNotificationCenter {
             ((Gtk.Widget) this).unrealize ();
 
             this.set_visible (visibility);
+            if (visibility) {
+                cajon.abrir ();   // WayBian: apertura elástica
+            }
 
             // Updates all widgets on visibility change
             foreach (var widget in widgets) {
